@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ian Tetris 2.0 + Clegga Clicker</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    background: linear-gradient(135deg, #0f1220 0%, #1a1d2e 100%);
+    color: #fff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  
+  .game-container {
+    display: flex;
+    width: 100%;
+    max-width: 1200px;
+    background: rgba(20, 23, 40, 0.95);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border: 1px solid #2a2d45;
+  }
+  
+  .game-panel {
+    flex: 1;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    min-height: 600px;
+  }
+  
+  .left-panel {
+    border-right: 2px solid #2a2d45;
+    background: rgba(15, 18, 32, 0.8);
+  }
+  
+  .right-panel {
+    background: rgba(18, 21, 36, 0.8);
+  }
+  
+  h1 {
+    margin-bottom: 20px;
+    font-size: 28px;
+    text-align: center;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    padding-bottom: 10px;
+    border-bottom: 2px solid;
+  }
+  
+  #tetris-title {
+    color: #3b82f6;
+    border-bottom-color: #3b82f6;
+  }
+  
+  #clicker-title {
+    color: #10b981;
+    border-bottom-color: #10b981;
+  }
+  
+  .game-canvas {
+    background: #000;
+    display: block;
+    margin: 20px auto;
+    border-radius: 8px;
+    border: 2px solid #3b82f6;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+  }
+  
+  .stats {
+    background: rgba(30, 33, 50, 0.8);
+    padding: 15px;
+    border-radius: 10px;
+    margin: 15px 0;
+    border: 1px solid #3b82f6;
+  }
+  
+  .stats p {
+    margin: 8px 0;
+    font-size: 16px;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .stats span {
+    color: #22c55e;
+    font-weight: bold;
+    font-size: 18px;
+  }
+  
+  .controls {
+    background: rgba(30, 33, 50, 0.8);
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: auto;
+    font-size: 14px;
+    color: #94a3b8;
+    border: 1px solid #6366f1;
+  }
+  
+  .target {
+    position: relative;
+    margin: 25px auto;
+    cursor: pointer;
+    transition: transform 0.1s;
+    width: fit-content;
+  }
+  
+  .target:hover {
+    transform: scale(1.05);
+  }
+  
+  .target img {
+    width: 220px;
+    height: 220px;
+    object-fit: cover;
+    border: 4px solid #10b981;
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+  }
+  
+  .green-ring {
+    position: absolute;
+    inset: -10px;
+    border: 4px solid #10b981;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+  }
+  
+  .hit {
+    animation: clickEffect 0.1s;
+  }
+  
+  @keyframes clickEffect {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.9); }
+    100% { transform: scale(1); }
+  }
+  
+  .click-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin: 20px 0;
+  }
+  
+  .stat-card {
+    background: rgba(30, 33, 50, 0.8);
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    border: 1px solid;
+  }
+  
+  .stat-card:nth-child(1) { border-color: #10b981; }
+  .stat-card:nth-child(2) { border-color: #8b5cf6; }
+  
+  .stat-card h3 {
+    color: #94a3b8;
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+  
+  .stat-card .value {
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+  }
+  
+  .upgrades {
+    background: rgba(30, 33, 50, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+    border: 1px solid #8b5cf6;
+    max-height: 250px;
+    overflow-y: auto;
+  }
+  
+  .upgrades::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .upgrades::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+  }
+  
+  .upgrades::-webkit-scrollbar-thumb {
+    background: #10b981;
+    border-radius: 4px;
+  }
+  
+  .upgrade-button {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border: none;
+    padding: 12px;
+    margin: 8px 0;
+    border-radius: 8px;
+    width: 100%;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s;
+    text-align: left;
+    position: relative;
+  }
+  
+  .upgrade-button:hover:not(:disabled) {
+    background: linear-gradient(135deg, #11c989 0%, #06a776 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+  }
+  
+  .upgrade-button:active:not(:disabled) {
+    transform: translateY(0);
+  }
+  
+  .upgrade-button:disabled {
+    background: #4b5563;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    opacity: 0.6;
+  }
+  
+  .premium-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: bold;
+  }
+  
+  .cheat-code-section {
+    background: rgba(30, 33, 50, 0.8);
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 15px;
+    border: 1px solid #f59e0b;
+  }
+  
+  .cheat-code-section h3 {
+    color: #f59e0b;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  
+  .cheat-input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 2px solid #10b981;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  
+  .cheat-button {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: none;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .cheat-button:hover {
+    background: linear-gradient(135deg, #f6a20b 0%, #da7806 100%);
+    transform: translateY(-1px);
+  }
+  
+  .cheat-button:active {
+    transform: translateY(0);
+  }
+  
+  .message {
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 6px;
+    text-align: center;
+    font-weight: bold;
+  }
+  
+  .success {
+    background: rgba(16, 185, 129, 0.2);
+    border: 1px solid #10b981;
+    color: #10b981;
+  }
+  
+  .error {
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid #ef4444;
+    color: #ef4444;
+  }
+  
+  .warning {
+    background: rgba(245, 158, 11, 0.2);
+    border: 1px solid #f59e0b;
+    color: #f59e0b;
+  }
+  
+  @media (max-width: 1000px) {
+    .game-container {
+      flex-direction: column;
+    }
+    
+    .left-panel {
+      border-right: none;
+      border-bottom: 2px solid #2a2d45;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="game-container">
+  <!-- TETRIS PANEL -->
+  <div class="game-panel left-panel">
+    <h1 id="tetris-title">Ian Tetris 2.0</h1>
+    
+    <canvas id="tetris" class="game-canvas" width="240" height="400"></canvas>
+    
+    <div class="stats">
+      <p>Current Score: <span id="score">0</span></p>
+      <p>High Score: <span id="highscore">0</span></p>
+      <p>Lines Cleared: <span id="lines">0</span></p>
+    </div>
+    
+    <div class="controls">
+      <p>🎮 Controls:</p>
+      <p>← → : Move Left/Right</p>
+      <p>↑ : Rotate Piece</p>
+      <p>↓ : Soft Drop</p>
+      <p>Space : Hard Drop</p>
+    </div>
+  </div>
+  
+  <!-- CLICKER GAME PANEL -->
+  <div class="game-panel right-panel">
+    <h1 id="clicker-title">Clegga Clicker</h1>
+    
+    <div class="click-stats">
+      <div class="stat-card">
+        <h3>Total Clicks</h3>
+        <div class="value" id="clicks">0</div>
+      </div>
+      <div class="stat-card">
+        <h3>Click Power</h3>
+        <div class="value" id="clickPower">1</div>
+      </div>
+    </div>
+    
+    <div class="target" id="target">
+      <img src="https://mrt1mmy.github.io/clegga/clegg.png" alt="Clegga" />
+      <div class="green-ring"></div>
+    </div>
+    
+    <div class="cheat-code-section">
+      <h3>🔓 Secret Code Input</h3>
+      <input type="text" class="cheat-input" id="cheatCode" placeholder="Enter secret code (spaces allowed)..." maxlength="20" />
+      <button class="cheat-button" onclick="activateCheatCode()">Activate Code</button>
+      <div id="cheatMessage" class="message"></div>
+    </div>
+    
+    <div class="upgrades" id="upgrades">
+      <h3 style="color: #8b5cf6; margin-bottom: 15px; text-align: center;">🌟 Clegg Compliments 🌟</h3>
+      <!-- Upgrades will be generated here -->
+    </div>
+  </div>
+</div>
+
+<script>
+/* ==================== CLICKER GAME SYSTEM ==================== */
+let clicks = Number(localStorage.getItem('cleggaClicks')) || 0;
+let clickPower = Number(localStorage.getItem('clickPower')) || 1;
+let autoClick = Number(localStorage.getItem('autoClickLevel')) || 0;
+let linesCleared = Number(localStorage.getItem('tetrisLines')) || 0;
+let redeemedCodes = JSON.parse(localStorage.getItem('redeemedCodes')) || {};
+
+const clicksEl = document.getElementById('clicks');
+const clickPowerEl = document.getElementById('clickPower');
+const target = document.getElementById('target');
+const cheatCodeInput = document.getElementById('cheatCode');
+const cheatMessage = document.getElementById('cheatMessage');
+
+// Update all displays
+function updateDisplays() {
+  clicksEl.innerText = clicks.toLocaleString();
+  clickPowerEl.innerText = clickPower.toLocaleString();
+}
+
+// Click handler
+target.addEventListener('click', () => {
+  clicks += clickPower;
+  updateDisplays();
+  localStorage.setItem('cleggaClicks', clicks);
+  
+  // Visual feedback
+  target.classList.add('hit');
+  setTimeout(() => target.classList.remove('hit'), 100);
+});
+
+// Auto click system
+setInterval(() => {
+  if (autoClick > 0) {
+    clicks += autoClick;
+    localStorage.setItem('cleggaClicks', clicks);
+    updateDisplays();
+  }
+}, 1000);
+
+/* ==================== CHEAT CODES ==================== */
+const CHEAT_CODES = {
+  'clegga': { 
+    reward: 100000, 
+    message: '💰 Clegga Code Activated! +100,000 clicks!',
+    reusable: false
+  },
+  'l dean': { 
+    reward: 50000, 
+    message: '🏀 L Dean Approved! +50,000 clicks!',
+    reusable: false
+  },
+  'q tip': { 
+    reward: 25000, 
+    message: '🎵 Q Tip Rhythm! +25,000 clicks!',
+    reusable: false
+  },
+  'hutcashapp': { 
+    reward: 75000, 
+    message: '💸 CashApp Hut! +75,000 clicks!',
+    reusable: false
+  },
+  'meme shop': { 
+    reward: 150000, 
+    message: '🛒 Meme Shop Grand Opening! +150,000 clicks!',
+    reusable: false
+  },
+  'keegz clicker': { 
+    reward: 'reset', 
+    message: '❌ That game is trash! Resetting to 0...',
+    reusable: true  // Can be used multiple times because it's a punishment
+  },
+  'crisp 20': { 
+    reward: 20, 
+    message: '✨ Crisp 20! +20 clicks!',
+    reusable: false
+  }
+};
+
+function activateCheatCode() {
+  const code = cheatCodeInput.value.trim(); // Allow spaces, keep original case for display
+  const normalizedCode = code.toLowerCase();
+  cheatMessage.className = 'message';
+  
+  // Clear any existing timeout
+  if (window.cheatMessageTimeout) {
+    clearTimeout(window.cheatMessageTimeout);
+  }
+  
+  if (CHEAT_CODES[normalizedCode]) {
+    const cheat = CHEAT_CODES[normalizedCode];
+    
+    // Check if code has already been redeemed (for non-reusable codes)
+    if (!cheat.reusable && redeemedCodes[normalizedCode]) {
+      cheatMessage.textContent = '⚠️ This code has already been used!';
+      cheatMessage.className = 'message warning';
+      cheatCodeInput.value = '';
+      
+      window.cheatMessageTimeout = setTimeout(() => {
+        cheatMessage.className = 'message';
+      }, 2000);
+      return;
+    }
+    
+    if (cheat.reward === 'reset') {
+      // Special case for keegz clicker
+      clicks = 0;
+      clickPower = 1;
+      autoClick = 0;
+      localStorage.setItem('cleggaClicks', clicks);
+      localStorage.setItem('clickPower', clickPower);
+      localStorage.setItem('autoClickLevel', autoClick);
+      
+      cheatMessage.textContent = cheat.message;
+      cheatMessage.className = 'message error';
+      
+      // Mark as redeemed even though it's reusable, just to track usage
+      redeemedCodes[normalizedCode] = (redeemedCodes[normalizedCode] || 0) + 1;
+    } else {
+      clicks += cheat.reward;
+      localStorage.setItem('cleggaClicks', clicks);
+      
+      cheatMessage.textContent = cheat.message;
+      cheatMessage.className = 'message success';
+      
+      // Mark non-reusable code as redeemed
+      if (!cheat.reusable) {
+        redeemedCodes[normalizedCode] = true;
+      }
+    }
+    
+    // Save redeemed codes
+    localStorage.setItem('redeemedCodes', JSON.stringify(redeemedCodes));
+    
+    updateDisplays();
+    
+    // Reset input after 2 seconds
+    cheatCodeInput.value = '';
+    cheatCodeInput.style.color = 'white';
+    cheatCodeInput.style.borderColor = '#10b981';
+    
+    window.cheatMessageTimeout = setTimeout(() => {
+      cheatMessage.className = 'message';
+    }, 2000);
+  } else {
+    // Show error message
+    cheatMessage.textContent = '❌ INVALID CODE!';
+    cheatMessage.className = 'message error';
+    cheatCodeInput.style.color = '#ef4444';
+    cheatCodeInput.style.borderColor = '#ef4444';
+    
+    // Reset after 2 seconds
+    window.cheatMessageTimeout = setTimeout(() => {
+      cheatCodeInput.value = '';
+      cheatCodeInput.style.color = 'white';
+      cheatCodeInput.style.borderColor = '#10b981';
+      cheatMessage.className = 'message';
+    }, 2000);
+  }
+}
+
+// Allow pressing Enter to activate cheat code
+cheatCodeInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    activateCheatCode();
+  }
+});
+
+/* ==================== UPGRADES SYSTEM ==================== */
+const upgradesDiv = document.getElementById('upgrades');
+const upgradesData = [
+  {
+    name: "Clegg's Charisma",
+    description: "Such charming personality! +10 click power",
+    type: 'click',
+    amount: 10,
+    cost: 100,
+    level: 0,
+    bonus: 1.0
+  },
+  {
+    name: "Clegg's Genius Brain",
+    description: "Incredibly smart decisions! +20 click power",
+    type: 'click',
+    amount: 20,
+    cost: 500,
+    level: 0,
+    bonus: 1.1
+  },
+  {
+    name: "Clegg's Infectious Laugh",
+    description: "Can brighten any room! +10 auto clicks/sec",
+    type: 'auto',
+    amount: 10,
+    cost: 1000,
+    level: 0,
+    bonus: 1.0
+  },
+  {
+    name: "Clegg's Leadership",
+    description: "Natural born leader! +40 click power",
+    type: 'click',
+    amount: 40,
+    cost: 2500,
+    level: 0,
+    bonus: 1.2
+  },
+  {
+    name: "Clegg's Humility",
+    description: "So humble and kind! +20 auto clicks/sec",
+    type: 'auto',
+    amount: 20,
+    cost: 5000,
+    level: 0,
+    bonus: 1.1
+  },
+  {
+    name: "Clegg's Creativity",
+    description: "Endless creative ideas! +80 click power",
+    type: 'click',
+    amount: 80,
+    cost: 10000,
+    level: 0,
+    bonus: 1.3
+  },
+  {
+    name: "Clegg's Dedication",
+    description: "Always gives 100%! +40 auto clicks/sec",
+    type: 'auto',
+    amount: 40,
+    cost: 20000,
+    level: 0,
+    bonus: 1.2
+  },
+  {
+    name: "Clegg's Wisdom",
+    description: "Wise beyond years! +160 click power",
+    type: 'click',
+    amount: 160,
+    cost: 50000,
+    level: 0,
+    bonus: 1.5,
+    premium: true
+  },
+  {
+    name: "Clegg's Positivity",
+    description: "Always uplifting! +80 auto clicks/sec",
+    type: 'auto',
+    amount: 80,
+    cost: 100000,
+    level: 0,
+    bonus: 1.4,
+    premium: true
+  },
+  {
+    name: "Clegg's Generosity",
+    description: "The most generous person! +320 click power",
+    type: 'click',
+    amount: 320,
+    cost: 250000,
+    level: 0,
+    bonus: 1.6,
+    premium: true
+  },
+  {
+    name: "Clegg's Patience",
+    description: "Endless patience! +160 auto clicks/sec",
+    type: 'auto',
+    amount: 160,
+    cost: 500000,
+    level: 0,
+    bonus: 1.7,
+    premium: true
+  },
+  {
+    name: "Clegg's Integrity",
+    description: "Always does what's right! +640 click power",
+    type: 'click',
+    amount: 640,
+    cost: 1000000,
+    level: 0,
+    bonus: 2.0,
+    premium: true
+  },
+  {
+    name: "Clegg's Friendship",
+    description: "Best friend anyone could have! +320 auto clicks/sec",
+    type: 'auto',
+    amount: 320,
+    cost: 2000000,
+    level: 0,
+    bonus: 2.2,
+    premium: true
+  },
+  {
+    name: "Clegg's Legacy",
+    description: "Making the world better! +1280 click power",
+    type: 'click',
+    amount: 1280,
+    cost: 5000000,
+    level: 0,
+    bonus: 2.5,
+    premium: true
+  },
+  {
+    name: "Clegg's Greatness",
+    description: "Simply the greatest! +640 auto clicks/sec",
+    type: 'auto',
+    amount: 640,
+    cost: 10000000,
+    level: 0,
+    bonus: 3.0,
+    premium: true
+  }
+];
+
+// Create upgrade buttons
+upgradesData.forEach(upgrade => {
+  const btn = document.createElement('button');
+  btn.className = 'upgrade-button';
+  
+  let html = `
+    <strong>${upgrade.name}</strong><br>
+    <small style="color: #d1d5db;">${upgrade.description}</small><br>
+    <span style="color: #fbbf24;">Cost: ${upgrade.cost.toLocaleString()} clicks</span>
+  `;
+  
+  if (upgrade.premium) {
+    html += '<span class="premium-badge">PREMIUM</span>';
+  }
+  
+  btn.innerHTML = html;
+  
+  // Check if affordable
+  if (clicks < upgrade.cost) {
+    btn.disabled = true;
+  }
+  
+  btn.addEventListener('click', () => {
+    if (clicks >= upgrade.cost) {
+      clicks -= upgrade.cost;
+      
+      // Apply bonus for expensive upgrades
+      let actualAmount = upgrade.amount;
+      if (upgrade.bonus && upgrade.bonus > 1.0) {
+        actualAmount = Math.floor(upgrade.amount * upgrade.bonus);
+      }
+      
+      if (upgrade.type === 'click') {
+        clickPower += actualAmount;
+        localStorage.setItem('clickPower', clickPower);
+      } else {
+        autoClick += actualAmount;
+        localStorage.setItem('autoClickLevel', autoClick);
+      }
+      
+      // Increase price for next purchase with better scaling for premium
+      let priceMultiplier = upgrade.premium ? 2.2 : 1.8;
+      upgrade.cost = Math.floor(upgrade.cost * priceMultiplier);
+      upgrade.level++;
+      
+      // Increase bonus for each level of premium upgrades
+      if (upgrade.premium && upgrade.level > 0) {
+        upgrade.bonus += 0.1 * upgrade.level;
+      }
+      
+      // Update button text with actual amount (including bonus)
+      let newHtml = `
+        <strong>${upgrade.name} (Lvl ${upgrade.level})</strong><br>
+        <small style="color: #d1d5db;">${upgrade.description}`;
+      
+      if (upgrade.bonus > 1.0) {
+        newHtml += ` <span style="color: #fbbf24;">(+${Math.round((upgrade.bonus - 1) * 100)}% bonus!)</span>`;
+      }
+      
+      newHtml += `</small><br>
+        <span style="color: #fbbf24;">Cost: ${upgrade.cost.toLocaleString()} clicks</span>
+      `;
+      
+      if (upgrade.premium) {
+        newHtml += '<span class="premium-badge">PREMIUM</span>';
+      }
+      
+      btn.innerHTML = newHtml;
+      
+      localStorage.setItem('cleggaClicks', clicks);
+      updateDisplays();
+      
+      // Update button disabled state
+      btn.disabled = clicks < upgrade.cost;
+    }
+  });
+  
+  upgradesDiv.appendChild(btn);
+});
+
+/* ==================== TETRIS GAME ==================== */
+const canvas = document.getElementById('tetris');
+const context = canvas.getContext('2d');
+context.scale(20, 20);
+
+const colors = [
+  null,
+  '#22c55e', // T
+  '#3b82f6', // O
+  '#eab308', // L
+  '#a855f7', // J
+  '#ef4444', // I
+  '#06b6d4', // S
+  '#f97316'  // Z
+];
+
+function createMatrix(width, height) {
+  const matrix = [];
+  while (height--) {
+    matrix.push(new Array(width).fill(0));
+  }
+  return matrix;
+}
+
+function createPiece(type) {
+  if (type === 'T') return [[0,0,0],[1,1,1],[0,1,0]];
+  if (type === 'O') return [[2,2],[2,2]];
+  if (type === 'L') return [[0,3,0],[0,3,0],[0,3,3]];
+  if (type === 'J') return [[0,4,0],[0,4,0],[4,4,0]];
+  if (type === 'I') return [[0,5,0,0],[0,5,0,0],[0,5,0,0],[0,5,0,0]];
+  if (type === 'S') return [[0,6,6],[6,6,0],[0,0,0]];
+  if (type === 'Z') return [[7,7,0],[0,7,7],[0,0,0]];
+}
+
+function drawMatrix(matrix, offset) {
+  matrix.forEach((row, y) => {
+    row.forEach((value, x) => {
+      if (value !== 0) {
+        context.fillStyle = colors[value];
+        context.fillRect(x + offset.x, y + offset.y, 1, 1);
+        
+        // Add border to pieces
+        context.strokeStyle = '#ffffff';
+        context.lineWidth = 0.05;
+        context.strokeRect(x + offset.x, y + offset.y, 1, 1);
+      }
+    });
+  });
+}
+
+function collide(arena, player) {
+  const [m, o] = [player.matrix, player.pos];
+  for (let y = 0; y < m.length; ++y) {
+    for (let x = 0; x < m[y].length; ++x) {
+      if (m[y][x] !== 0 &&
+         (arena[y + o.y] &&
+          arena[y + o.y][x + o.x]) !== 0) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+function merge(arena, player) {
+  player.matrix.forEach((row, y) => {
+    row.forEach((value, x) => {
+      if (value !== 0) {
+        arena[y + player.pos.y][x + player.pos.x] = value;
+      }
+    });
+  });
+}
+
+function arenaSweep() {
+  let rowCount = 0;
+  outer: for (let y = arena.length - 1; y > 0; --y) {
+    for (let x = 0; x < arena[y].length; ++x) {
+      if (arena[y][x] === 0) {
+        continue outer;
+      }
+    }
+    
+    const row = arena.splice(y, 1)[0].fill(0);
+    arena.unshift(row);
+    ++y;
+    rowCount++;
+  }
+  
+  if (rowCount > 0) {
+    player.score += rowCount * 100;
+    linesCleared += rowCount;
+    localStorage.setItem('tetrisLines', linesCleared);
+    document.getElementById('lines').innerText = linesCleared;
+    updateScore();
+  }
+}
+
+function rotate(matrix) {
+  for (let y = 0; y < matrix.length; ++y) {
+    for (let x = 0; x < y; ++x) {
+      [matrix[x][y], matrix[y][x]] = [matrix[y][x], matrix[x][y]];
+    }
+  }
+  matrix.forEach(row => row.reverse());
+}
+
+function playerDrop() {
+  player.pos.y++;
+  if (collide(arena, player)) {
+    player.pos.y--;
+    merge(arena, player);
+    playerReset();
+    arenaSweep();
+  }
+  dropCounter = 0;
+}
+
+function playerMove(dir) {
+  player.pos.x += dir;
+  if (collide(arena, player)) {
+    player.pos.x -= dir;
+  }
+}
+
+function playerRotate() {
+  const pos = player.pos.x;
+  let offset = 1;
+  rotate(player.matrix);
+  
+  while (collide(arena, player)) {
+    player.pos.x += offset;
+    offset = -(offset + (offset > 0 ? 1 : -1));
+    if (offset > player.matrix[0].length) {
+      rotate(player.matrix);
+      rotate(player.matrix);
+      rotate(player.matrix);
+      player.pos.x = pos;
+      return;
+    }
+  }
+}
+
+function playerReset() {
+  const pieces = 'TJLOSZI';
+  player.matrix = createPiece(pieces[Math.floor(Math.random() * pieces.length)]);
+  player.pos.y = 0;
+  player.pos.x = Math.floor(arena[0].length / 2) - Math.floor(player.matrix[0].length / 2);
+  
+  if (collide(arena, player)) {
+    arena.forEach(row => row.fill(0));
+    player.score = 0;
+    updateScore();
+  }
+}
+
+function updateScore() {
+  document.getElementById('score').innerText = player.score;
+  if (player.score > highScore) {
+    highScore = player.score;
+    localStorage.setItem('ianTetrisHighScore', highScore);
+    document.getElementById('highscore').innerText = highScore;
+  }
+}
+
+let dropCounter = 0;
+let dropInterval = 700;
+let lastTime = 0;
+
+function update(time = 0) {
+  const deltaTime = time - lastTime;
+  lastTime = time;
+  
+  dropCounter += deltaTime;
+  if (dropCounter > dropInterval) {
+    playerDrop();
+  }
+  
+  // Clear canvas
+  context.fillStyle = '#000';
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  
+  // Draw arena border
+  context.strokeStyle = '#3b82f6';
+  context.lineWidth = 0.1;
+  context.strokeRect(0, 0, 12, 20);
+  
+  // Draw game elements
+  drawMatrix(arena, {x: 0, y: 0});
+  drawMatrix(player.matrix, player.pos);
+  
+  requestAnimationFrame(update);
+}
+
+let highScore = Number(localStorage.getItem('ianTetrisHighScore')) || 0;
+document.getElementById('highscore').innerText = highScore;
+document.getElementById('lines').innerText = linesCleared;
+
+const arena = createMatrix(12, 20);
+const player = {
+  pos: {x: 0, y: 0},
+  matrix: null,
+  score: 0
+};
+
+playerReset();
+updateScore();
+update();
+
+/* ==================== CONTROLS ==================== */
+document.addEventListener('keydown', event => {
+  if (event.key === 'ArrowLeft') {
+    playerMove(-1);
+  } else if (event.key === 'ArrowRight') {
+    playerMove(1);
+  } else if (event.key === 'ArrowDown') {
+    playerDrop();
+  } else if (event.key === 'ArrowUp') {
+    playerRotate();
+  } else if (event.key === ' ') {
+    // Hard drop
+    while (!collide(arena, { ...player, pos: { ...player.pos, y: player.pos.y + 1 } })) {
+      player.pos.y++;
+    }
+    playerDrop();
+  }
+  
+  // Prevent arrow keys from scrolling the page
+  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', ' '].includes(event.key)) {
+    event.preventDefault();
+  }
+});
+
+// Update upgrade buttons affordability periodically
+setInterval(() => {
+  const buttons = upgradesDiv.querySelectorAll('.upgrade-button');
+  buttons.forEach((btn, index) => {
+    const upgrade = upgradesData[index];
+    if (upgrade && clicks < upgrade.cost) {
+      btn.disabled = true;
+    } else if (upgrade) {
+      btn.disabled = false;
+    }
+  });
+}, 1000);
+
+// Initial display update
+updateDisplays();
+</script>
+</body>
+</html>
