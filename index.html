@@ -384,7 +384,7 @@
     
     <div class="cheat-code-section">
       <h3>🔓 Secret Code Input</h3>
-      <input type="text" class="cheat-input" id="cheatCode" placeholder="Enter secret code (spaces allowed)..." maxlength="20" />
+      <input type="text" class="cheat-input" id="cheatCode" placeholder="Enter secret code (spaces allowed)..." maxlength="30" />
       <button class="cheat-button" onclick="activateCheatCode()">Activate Code</button>
       <div id="cheatMessage" class="message"></div>
     </div>
@@ -466,17 +466,298 @@ const CHEAT_CODES = {
   'keegz clicker': { 
     reward: 'reset', 
     message: '❌ That game is trash! Resetting to 0...',
-    reusable: true  // Can be used multiple times because it's a punishment
+    reusable: true
   },
   'crisp 20': { 
     reward: 20, 
     message: '✨ Crisp 20! +20 clicks!',
     reusable: false
+  },
+  // NEW CODES FROM YOUR LIST:
+  '26 freaky mentz': {
+    reward: 26000,
+    message: '🔥 26 Freaky Mentz! +26,000 clicks!',
+    reusable: false
+  },
+  'pkmentzer clegga': {
+    reward: 42000,
+    message: '💪 PK Mentzer Strength! +42,000 clicks!',
+    reusable: false
+  },
+  'good coder': {
+    reward: 100000,
+    message: '👨‍💻 Good Coder Detected! +100,000 clicks!',
+    reusable: false
+  },
+  'euro playz': {
+    reward: 75000,
+    message: '⚽ Euro Playz! +75,000 clicks!',
+    reusable: false
+  },
+  'dyskinnes': {
+    reward: 45000,
+    message: '🎮 Dyskinnes Gaming! +45,000 clicks!',
+    reusable: false
+  },
+  'senniksyd': {
+    reward: 60000,
+    message: '🌟 Senniksyd Activated! +60,000 clicks!',
+    reusable: false
+  },
+  'papa g': {
+    reward: 55000,
+    message: '👑 Papa G Blessing! +55,000 clicks!',
+    reusable: false
+  },
+  'jeffery membean': {
+    reward: 77777,
+    message: '🎉 jeffery membean! +77,777 clicks!',
+    reusable: false
+  },
+  'gastoes': {
+    reward: 35000,
+    message: '🦸 Gastoes Power! +35,000 clicks!',
+    reusable: false
+  },
+  'mrtimmy': {
+    reward: 10000,
+    message: '🎯 MrTimmy Mastery! +10,000 clicks!',
+    reusable: false
+  },
+  'mr flamingo': {
+    reward: 50000,
+    message: '🦩 Mr Flamingo Style! +50,000 clicks!',
+    reusable: false
+  },
+  'mr dropshot': {
+    reward: 65000,
+    message: '🎾 Mr Dropshot Ace! +65,000 clicks!',
+    reusable: false
+  },
+  'mr dolphin': {
+    reward: 70000,
+    message: '🐬 Mr Dolphin Dive! +70,000 clicks!',
+    reusable: false
+  },
+  'mr tedds': {
+    reward: 45000,
+    message: '🧸 Mr Tedds Comfort! +45,000 clicks!',
+    reusable: false
+  },
+  'kylie': {
+    reward: 60000,
+    message: '✨ Kylie Magic! +60,000 clicks!',
+    reusable: false
+  },
+  'nailil river': {
+    reward: 55000,
+    message: '🌊 Nailil River Flow! +55,000 clicks!',
+    reusable: false
+  },
+  'yerdua best': {
+    reward: 80000,
+    message: '🏆 Yerdua Best! +80,000 clicks!',
+    reusable: false
+  },
+  'the chopped one': {
+    reward: 90000,
+    message: '🔪 The Chopped One! +90,000 clicks!',
+    reusable: false
+  },
+  'siri': {
+    reward: 30000,
+    message: '🗣️ Siri Assistance! +30,000 clicks!',
+    reusable: false
+  },
+  'alexa': {
+    reward: 30000,
+    message: '🔊 Alexa Activated! +30,000 clicks!',
+    reusable: false
+  },
+  'trombles': {
+    reward: 85000,
+    message: '🌀 Trombles Effect! +85,000 clicks!',
+    reusable: false
+  },
+  'brick': {
+    reward: 25000,
+    message: '🧱 Brick Solid! +25,000 clicks!',
+    reusable: false
+  },
+  'grant': {
+    reward: 40000,
+    message: '🎓 Grant Approved! +40,000 clicks!',
+    reusable: false
+  },
+  'd4vd': {
+    reward: 100000,
+    message: '🎵 D4VD Music! +100,000 clicks!',
+    reusable: false
+  },
+  'plz keegz i need this': {
+    reward: 150000,
+    message: '🙏 Keegz Mercy! +150,000 clicks!',
+    reusable: false
+  },
+  'keegz': {
+    reward: 120000,
+    message: '👑 Keegz Reigns! +120,000 clicks!',
+    reusable: false
+  },
+  'zeenies': {
+    reward: 50000,
+    message: '🌟 Zeenies Sparkle! +50,000 clicks!',
+    reusable: false
+  },
+  'von': {
+    reward: 35000,
+    message: '🎩 Von Style! +35,000 clicks!',
+    reusable: false
+  },
+  'b fletch': {
+    reward: 45000,
+    message: '🏈 B-Fletch Touchdown! +45,000 clicks!',
+    reusable: false
+  },
+  'chat': {
+    reward: 20000,
+    message: '💬 Chat Activated! +20,000 clicks!',
+    reusable: false
+  },
+  'jona$ty': {
+    reward: 95000,
+    message: '💵 Jona$ty Rich! +95,000 clicks!',
+    reusable: false
+  },
+  'letter box': {
+    reward: 30000,
+    message: '📬 Letter Box Delivery! +30,000 clicks!',
+    reusable: false
+  },
+  'colegate': {
+    reward: 40000,
+    message: '🎓 Colegate Graduate! +40,000 clicks!',
+    reusable: false
+  },
+  'b slate': {
+    reward: 35000,
+    message: '🪨 B Slate Solid! +35,000 clicks!',
+    reusable: false
+  },
+  'indian boiiii': {
+    reward: 77777,
+    message: '🎭 Indian Boiiii! +77,777 clicks!',
+    reusable: false
+  },
+  'member': {
+    reward: 15000,
+    message: '🧠 Member This! +15,000 clicks!',
+    reusable: false
+  },
+  'en kay hada': {
+    reward: 85000,
+    message: '🌟 NK Hada Power! +85,000 clicks!',
+    reusable: false
+  },
+  'point talker': {
+    reward: 25000,
+    message: '💬 Point Talker! +25,000 clicks!',
+    reusable: false
+  },
+  'wyle kise': {
+    reward: 50000,
+    message: 'bro is no kyle wise +50,000 clicks!',
+    reusable: false
+  },
+  'babycripp': {
+    reward: 60000,
+    message: '👶 BabyCripp Cute! +60,000 clicks!',
+    reusable: false
+  },
+  'wolfman studios': {
+    reward: 120000,
+    message: '🐺 Wolfman Studios! +120,000 clicks!',
+    reusable: false
+  },
+  'slaybaddiequeen': {
+    reward: 1000,
+    message: 'slay baddie queen! +1,000 clicks!',
+    reusable: false
+  },
+  'ian trombly': {
+    reward: 200000,
+    message: '🎮 Ian Trombly Tetris! +200,000 clicks!',
+    reusable: false
+  },
+  'days since accident': {
+    reward: 0,
+    message: '📅 Days Since Accident: 0! No clicks added...',
+    reusable: false
+  },
+  'dolin conavan': {
+    reward: 75000,
+    message: '🚐 Dolin Conavan! +75,000 clicks!',
+    reusable: false
+  },
+  'freaky colin': {
+    reward: 69000,
+    message: '😎 Freaky Colin! +69,000 clicks!',
+    reusable: false
+  },
+  'gyattsos': {
+    reward: 42069,
+    message: '🍑 Gyattsos! +42,069 clicks!',
+    reusable: false
+  },
+  'peach': {
+    reward: 25000,
+    message: '🍑 Peach Fuzz! +25,000 clicks!',
+    reusable: false
+  },
+  'pyma': {
+    reward: 35000,
+    message: '🐍 Pyma Python! +35,000 clicks!',
+    reusable: false
+  },
+  'lorax': {
+    reward: 45000,
+    message: '🌳 Lorax Speaks! +45,000 clicks!',
+    reusable: false
+  },
+  'seahawks': {
+    reward: 12000,
+    message: '🏈 Seahawks Fly! +12,000 clicks!',
+    reusable: false
+  },
+  'carrot': {
+    reward: 15000,
+    message: '🥕 Carrot Power! +15,000 clicks!',
+    reusable: false
+  },
+  'banana': {
+    reward: 20000,
+    message: '🍌 Banana Split! +20,000 clicks!',
+    reusable: false
+  },
+  'mathxl': {
+    reward: 100000,
+    message: '🧮 MathXL Mastered! +100,000 clicks!',
+    reusable: false
+  },
+  '28tay': {
+    reward: 28000,
+    message: '🎯 28Tay Accuracy! +28,000 clicks!',
+    reusable: false
+  },
+  'wyoming': {
+    reward: 50000,
+    message: '🏞️ Wyoming Wild! +50,000 clicks!',
+    reusable: false
   }
 };
 
 function activateCheatCode() {
-  const code = cheatCodeInput.value.trim(); // Allow spaces, keep original case for display
+  const code = cheatCodeInput.value.trim();
   const normalizedCode = code.toLowerCase();
   cheatMessage.className = 'message';
   
@@ -514,6 +795,10 @@ function activateCheatCode() {
       
       // Mark as redeemed even though it's reusable, just to track usage
       redeemedCodes[normalizedCode] = (redeemedCodes[normalizedCode] || 0) + 1;
+    } else if (cheat.reward === 0) {
+      // Special case for days since accident
+      cheatMessage.textContent = cheat.message;
+      cheatMessage.className = 'message warning';
     } else {
       clicks += cheat.reward;
       localStorage.setItem('cleggaClicks', clicks);
