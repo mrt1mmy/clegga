@@ -4,8 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Ian Tetris 2.0 + Clegga Clicker</title>
-<style> 
-  * { 
+<style>
+  * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -72,7 +72,7 @@
   .game-canvas {
     background: #000;
     display: block;
-    margin: 20px auto;
+    margin: 0 auto;
     border-radius: 8px;
     border: 2px solid #3b82f6;
     box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
@@ -327,6 +327,42 @@
     color: #f59e0b;
   }
   
+  /* TETRIS DISPLAY STYLES */
+  .tetris-display {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    justify-content: center;
+    margin: 20px 0;
+  }
+  
+  .next-piece-side {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(30, 33, 50, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #3b82f6;
+    width: 180px;
+    min-height: 200px;
+  }
+  
+  .next-piece-side h3 {
+    color: #3b82f6;
+    margin-bottom: 20px;
+    font-size: 18px;
+    text-align: center;
+  }
+  
+  #nextPieceCanvas {
+    background: #000;
+    border-radius: 8px;
+    border: 2px solid #3b82f6;
+    width: 160px;
+    height: 160px;
+  }
+  
   @media (max-width: 1000px) {
     .game-container {
       flex-direction: column;
@@ -335,6 +371,21 @@
     .left-panel {
       border-right: none;
       border-bottom: 2px solid #2a2d45;
+    }
+    
+    .tetris-display {
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .next-piece-side {
+      margin-top: 15px;
+      width: 160px;
+    }
+    
+    #nextPieceCanvas {
+      width: 140px;
+      height: 140px;
     }
   }
 </style>
@@ -345,7 +396,14 @@
   <div class="game-panel left-panel">
     <h1 id="tetris-title">Ian Tetris 2.0</h1>
     
-    <canvas id="tetris" class="game-canvas" width="240" height="400"></canvas>
+    <div class="tetris-display">
+      <canvas id="tetris" class="game-canvas" width="240" height="400"></canvas>
+      
+      <div class="next-piece-side">
+        <h3>Next Piece</h3>
+        <canvas id="nextPieceCanvas" width="160" height="160"></canvas>
+      </div>
+    </div>
     
     <div class="stats">
       <p>Current Score: <span id="score">0</span></p>
@@ -449,8 +507,8 @@ const CHEAT_CODES = {
     reusable: false
   },
   'qtip': { 
-    reward: 25000, 
-    message: '🎵 Q Tip Rhythm! +25,000 clicks!',
+    reward: 25, 
+    message: '🎵 Q Tip Rhythm! +25 clicks!',
     reusable: false
   },
   'hutcashapp': { 
@@ -479,7 +537,6 @@ const CHEAT_CODES = {
     message: '🔥 26 Freaky Mentz! +26,000 clicks!',
     reusable: false
   },
-
   'goodcoder': {
     reward: 100000,
     message: '👨‍💻 Good Coder Detected! +100,000 clicks!',
@@ -1076,7 +1133,10 @@ upgradesData.forEach(upgrade => {
 /* ==================== TETRIS GAME ==================== */
 const canvas = document.getElementById('tetris');
 const context = canvas.getContext('2d');
+const nextPieceCanvas = document.getElementById('nextPieceCanvas');
+const nextPieceContext = nextPieceCanvas.getContext('2d');
 context.scale(20, 20);
+// No scaling for nextPieceContext - we'll use images directly
 
 const colors = [
   null,
@@ -1107,17 +1167,40 @@ function createPiece(type) {
   if (type === 'Z') return [[7,7,0],[0,7,7],[0,0,0]];
 }
 
-function drawMatrix(matrix, offset) {
+// Improved function to draw grid lines (no dots, more visible)
+function drawGridLines() {
+  // Draw vertical lines - made more visible
+  for (let x = 0; x <= 12; x++) {
+    context.beginPath();
+    context.moveTo(x, 0);
+    context.lineTo(x, 20);
+    context.strokeStyle = 'rgba(100, 100, 100, 0.3)';
+    context.lineWidth = 0.04;
+    context.stroke();
+  }
+  
+  // Draw horizontal lines - made more visible
+  for (let y = 0; y <= 20; y++) {
+    context.beginPath();
+    context.moveTo(0, y);
+    context.lineTo(12, y);
+    context.strokeStyle = 'rgba(100, 100, 100, 0.3)';
+    context.lineWidth = 0.04;
+    context.stroke();
+  }
+}
+
+function drawMatrix(matrix, offset, ctx = context) {
   matrix.forEach((row, y) => {
     row.forEach((value, x) => {
       if (value !== 0) {
-        context.fillStyle = colors[value];
-        context.fillRect(x + offset.x, y + offset.y, 1, 1);
+        ctx.fillStyle = colors[value];
+        ctx.fillRect(x + offset.x, y + offset.y, 1, 1);
         
         // Add border to pieces
-        context.strokeStyle = '#ffffff';
-        context.lineWidth = 0.05;
-        context.strokeRect(x + offset.x, y + offset.y, 1, 1);
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 0.05;
+        ctx.strokeRect(x + offset.x, y + offset.y, 1, 1);
       }
     });
   });
@@ -1216,9 +1299,90 @@ function playerRotate() {
   }
 }
 
-function playerReset() {
+// Add next piece functionality
+let nextPieceType = '';
+let nextPieceImage = null;
+
+function generateNextPiece() {
   const pieces = 'TJLOSZI';
-  player.matrix = createPiece(pieces[Math.floor(Math.random() * pieces.length)]);
+  nextPieceType = pieces[Math.floor(Math.random() * pieces.length)];
+  return nextPieceType;
+}
+
+function drawNextPiece() {
+  // Clear the next piece canvas
+  nextPieceContext.fillStyle = '#000';
+  nextPieceContext.fillRect(0, 0, 160, 160);
+  
+  if (nextPieceType) {
+    // Create image object if it doesn't exist
+    if (!nextPieceImage) {
+      nextPieceImage = new Image();
+    }
+    
+    // Load the piece image from your GitHub
+    nextPieceImage.src = `https://mrt1mmy.github.io/clegga/${nextPieceType}.png`;
+    
+    nextPieceImage.onload = function() {
+      // Clear canvas
+      nextPieceContext.fillStyle = '#000';
+      nextPieceContext.fillRect(0, 0, 160, 160);
+      
+      // Draw the image centered and scaled to fill most of the canvas
+      const canvasWidth = 160;
+      const canvasHeight = 160;
+      const padding = 10; // Padding around the image
+      
+      // Calculate scaling to fit within canvas with padding
+      const maxWidth = canvasWidth - (padding * 2);
+      const maxHeight = canvasHeight - (padding * 2);
+      
+      let width = nextPieceImage.width;
+      let height = nextPieceImage.height;
+      
+      // Scale down if too large
+      if (width > maxWidth || height > maxHeight) {
+        const scale = Math.min(maxWidth / width, maxHeight / height);
+        width *= scale;
+        height *= scale;
+      }
+      
+      // Center the image
+      const x = (canvasWidth - width) / 2;
+      const y = (canvasHeight - height) / 2;
+      
+      // Draw the image
+      nextPieceContext.drawImage(nextPieceImage, x, y, width, height);
+    };
+    
+    // If image fails to load, show a fallback
+    nextPieceImage.onerror = function() {
+      // Fallback: draw a simple text representation
+      nextPieceContext.fillStyle = '#000';
+      nextPieceContext.fillRect(0, 0, 160, 160);
+      
+      nextPieceContext.fillStyle = '#3b82f6';
+      nextPieceContext.font = '40px Arial';
+      nextPieceContext.textAlign = 'center';
+      nextPieceContext.textBaseline = 'middle';
+      nextPieceContext.fillText(nextPieceType, 80, 80);
+    };
+  }
+}
+
+function playerReset() {
+  // If no next piece yet, generate one
+  if (!nextPieceType) {
+    nextPieceType = generateNextPiece();
+  }
+  
+  // Use the next piece for current piece
+  player.matrix = createPiece(nextPieceType);
+  
+  // Generate new next piece
+  nextPieceType = generateNextPiece();
+  drawNextPiece();
+  
   player.pos.y = 0;
   player.pos.x = Math.floor(arena[0].length / 2) - Math.floor(player.matrix[0].length / 2);
   
@@ -1260,6 +1424,9 @@ function update(time = 0) {
   context.lineWidth = 0.1;
   context.strokeRect(0, 0, 12, 20);
   
+  // Draw grid lines
+  drawGridLines();
+  
   // Draw game elements
   drawMatrix(arena, {x: 0, y: 0});
   drawMatrix(player.matrix, player.pos);
@@ -1278,6 +1445,9 @@ const player = {
   score: 0
 };
 
+// Initialize the next piece
+generateNextPiece();
+drawNextPiece();
 playerReset();
 updateScore();
 update();
